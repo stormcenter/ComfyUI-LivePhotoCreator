@@ -209,8 +209,19 @@ class LivePhotoPreview:
     OUTPUT_NODE = True
 
     def preview(self, video):
+        # 确保视频路径是字符串
+        if isinstance(video, (list, tuple)):
+            video = ''.join(video)
+            
+        # 确保路径包含 IMG.MOV
+        if not video.endswith('IMG.MOV'):
+            video = os.path.join(video, 'IMG.MOV')
+            
+        # 确保路径存在
+        if not os.path.exists(video):
+            print(f"[LivePhotoPreview] Warning: Video file not found: {video}")
+            
         print(f"[LivePhotoPreview] Executing with video path: {video}")
-        # 明确返回结果字典
         return {"ui": {"video": video}}
 
 NODE_CLASS_MAPPINGS = {

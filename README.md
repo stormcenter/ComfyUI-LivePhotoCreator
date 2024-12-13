@@ -11,6 +11,8 @@ A custom node for ComfyUI that allows you to create iPhone-compatible Live Photo
 - Optional audio support
 - Standard output format compatible with iPhone
 
+![LivePhotoCreator](./example/Screenshot_2024-12-13_14-57-54.png)
+
 ## Installation
 
 1. Clone this repository into your ComfyUI custom nodes directory:
