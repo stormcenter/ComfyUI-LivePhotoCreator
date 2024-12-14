@@ -10,6 +10,7 @@ A custom node for ComfyUI that allows you to create iPhone-compatible Live Photo
 - Adjustable FPS and duration
 - Optional audio support
 - Standard output format compatible with iPhone
+- Image transition effects with customizable parameters
 
 ![LivePhotoCreator](./example/Screenshot_2024-12-13_14-57-54.png)
 
@@ -61,13 +62,40 @@ The LivePhotoPreview node allows you to preview the created Live Photo:
 - Input: Takes the video path from LivePhotoCreator
 - Output: Interactive preview with hover effect
 
-## Example Workflow
+### ImageCompareTransition Node
 
+The ImageCompareTransition node creates smooth transition effects between two images:
+- **Inputs**:
+  - **image1**: First input image (IMAGE type)
+  - **image2**: Second input image (IMAGE type)
+  - **frames**: Number of transition frames (2-120 frames)
+  - **fps**: Frame rate of the transition (1-60 fps)
+- **Output**:
+  - **frames**: Generated transition frame sequence
+
+Features:
+- Smooth left-to-right sliding transition effect
+- Automatic image size matching
+- Compatible with VHS video nodes for further processing
+- Customizable frame count and frame rate
+
+![Transition Demo](./example/Screenity_video_Dec_14_2024.mp4)
+
+## Example Workflows
+
+### Basic Live Photo Creation
 1. Load your video using the "Load Video" node
 2. Connect the video output to LivePhotoCreator
 3. Configure the desired key frame, duration, and FPS
 4. Connect LivePhotoPreview to see the result
-5. The output files will be saved in the ComfyUI output directory under a timestamp-based folder
+5. The output files will be saved in the ComfyUI output directory
+
+### Image Transition Workflow
+1. Load two images you want to transition between
+2. Connect them to ImageCompareTransition node
+3. Adjust frames and fps parameters
+4. Use VHS nodes to save the transition as video
+5. Check the example workflow in [haihyper_example.json](./example/haihyper_example.json)
 
 ## Output Format
 

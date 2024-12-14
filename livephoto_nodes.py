@@ -224,12 +224,116 @@ class LivePhotoPreview:
         print(f"[LivePhotoPreview] Executing with video path: {video}")
         return {"ui": {"video": video}}
 
+class ImageCompareTransition:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "image1": ("IMAGE",),  # 第一张图片
+                "image2": ("IMAGE",),  # 第二张图片
+                "frames": ("INT", {
+                    "default": 30,
+                    "min": 2,
+                    "max": 120,
+                    "step": 1
+                }),  # 过渡帧数
+                "fps": ("FLOAT", {
+                    "default": 8.0,
+                    "min": 1.0,
+                    "max": 60.0,
+                    "step": 1.0
+                })
+            }
+        }
+    
+    RETURN_TYPES = ("IMAGE",)  # 只返回帧序列
+    RETURN_NAMES = ("frames",)
+    FUNCTION = "create_transition"
+    CATEGORY = "image/animation"
+
+    def resize_image(self, img, target_h, target_w):
+        """调整图片尺寸，保持长宽比"""
+        import torch
+        import torch.nn.functional as F
+        
+        # 计算缩放比例
+        h, w = img.shape[1:3]
+        scale = min(target_h/h, target_w/w)
+        new_h = int(h * scale)
+        new_w = int(w * scale)
+        
+        # 使用双线性插值进行缩放
+        img = img.unsqueeze(0)  # 添加batch维度
+        img = F.interpolate(img, size=(new_h, new_w), mode='bilinear', align_corners=False)
+        img = img.squeeze(0)  # 移除batch维度
+        
+        return img
+
+    def create_transition(self, image1, image2, frames, fps):
+        import torch
+        import numpy as np
+        
+        # 确保输入图像维度正确
+        if len(image1.shape) > 4:
+            image1 = image1.squeeze(0)
+        if len(image2.shape) > 4:
+            image2 = image2.squeeze(0)
+
+        # 打印输入图像的形状
+        print(f"Input image1 shape: {image1.shape}")
+        print(f"Input image2 shape: {image2.shape}")
+
+        # 获取两张图片的尺寸
+        h1, w1 = image1.shape[1:3]
+        h2, w2 = image2.shape[1:3]
+        
+        # 使用较小的尺寸作为目标尺寸
+        target_h = min(h1, h2)
+        target_w = min(w1, w2)
+        
+        # 调整两张图片的尺寸
+        if h1 != target_h or w1 != target_w:
+            image1 = self.resize_image(image1, target_h, target_w)
+        if h2 != target_h or w2 != target_w:
+            image2 = self.resize_image(image2, target_h, target_w)
+        
+        # 创建帧列表
+        frame_list = []
+        
+        # 生成过渡帧
+        for i in range(frames):
+            # 计算当前过渡位置（从0到1）
+            progress = i / (frames - 1)
+            
+            # 计算分割点
+            split_pos = int(progress * target_w)
+            
+            # 创建新帧 - 保持 [B, H, W, C] 格式
+            new_frame = torch.clone(image1)
+            new_frame[0, :, split_pos:, :] = image2[0, :, split_pos:, :]
+            frame_list.append(new_frame[0])  # 只保留 [H, W, C] 部分
+
+        # 将所有帧堆叠成一个张量
+        output_frames = torch.stack(frame_list)
+        
+        # 确保数据在正确的范围内
+        output_frames = output_frames.clamp(0, 1)
+
+        # 打印调试信息
+        print(f"Single frame shape: {frame_list[0].shape}")
+        print(f"Output frames shape: {output_frames.shape}")
+        print(f"Output frames dtype: {output_frames.dtype}")
+
+        return (output_frames,)
+
 NODE_CLASS_MAPPINGS = {
     "LivePhotoCreator": LivePhotoCreator,
-    "LivePhotoPreview": LivePhotoPreview
+    "LivePhotoPreview": LivePhotoPreview,
+    "ImageCompareTransition": ImageCompareTransition
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "LivePhotoCreator": "Create Live Photo",
-    "LivePhotoPreview": "Preview Live Photo"
+    "LivePhotoPreview": "Preview Live Photo",
+    "ImageCompareTransition": "Image Compare Transition"
 }
