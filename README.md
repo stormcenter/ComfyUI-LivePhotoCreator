@@ -79,7 +79,7 @@ Features:
 - Compatible with VHS video nodes for further processing
 - Customizable frame count and frame rate
 
-![Transition Demo](./example/Screenity_video_Dec_14_2024.mp4)
+![Transition Demo](./example/Screenity_video.gif)
 
 ## Example Workflows
 
