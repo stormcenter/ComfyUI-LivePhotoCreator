@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-livephotocreator"
+description = "A custom node for ComfyUI that allows you to create iPhone-compatible Live Photos from videos. This node can convert video sequences into Live Photo format, with the ability to select key frames and customize the output."
+version = "1.0.0"
+license = {file = "LICENSE"}
+
+[project.urls]
+Repository = "https://github.com/stormcenter/ComfyUI-LivePhotoCreator"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI-LivePhotoCreator"
+Icon = ""
